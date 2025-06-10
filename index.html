@@ -3,37 +3,358 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Companion</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>AI Companion</title> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* Nexa AI Styles - Integrated */
+        :root {
+            --primary-color: #6c63ff;
+            --secondary-color: #4d44db;
+            --ai-message-bg: #f0f2f5;
+            --user-message-bg: #6c63ff;
+            --text-color: #333;
+            --light-text: #777;
+            --white: #ffffff;
+            --chat-bg: #f9f9f9;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #e5e5f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 500px; /* Adjusted max-width */
+            height: 90vh;
+            background-color: var(--white);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            padding: 15px 20px;
+            background-color: var(--primary-color);
+            color: var(--white);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ai-profile {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--white);
+        }
+
+        .chat-header h1 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .status {
+            font-size: 12px;
+            opacity: 0.8;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background-color: #4caf50;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .menu-btn {
+            background: none;
+            border: none;
+            color: var(--white);
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: var(--chat-bg);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 12px 15px;
+            border-radius: 18px;
+            position: relative;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .ai-message { /* Changed from .message.bot */
+            align-self: flex-start;
+            background-color: var(--ai-message-bg);
+            color: var(--text-color);
+            border-bottom-left-radius: 5px;
+        }
+
+        .user-message { /* Changed from .message.user */
+            align-self: flex-end;
+            background-color: var(--user-message-bg);
+            color: var(--white);
+            border-bottom-right-radius: 5px;
+        }
+
+        .message-time {
+            display: block;
+            font-size: 10px;
+            margin-top: 5px;
+            opacity: 0.7;
+            text-align: right;
+        }
+
+        .chat-input { /* Replaced .chat-input-container */
+            padding: 15px;
+            background-color: var(--white);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-top: 1px solid #eee;
+        }
+
+        .chat-input input { /* Replaced .chat-input */
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 30px;
+            outline: none;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+
+        .chat-input input:focus {
+            border-color: var(--primary-color);
+        }
+
+        .chat-input button { /* Replaced .send-button */
+            width: 40px;
+            height: 40px;
+            border: none;
+            background-color: var(--primary-color);
+            color: var(--white);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .chat-input button:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .voice-btn {
+            background-color: #f0f2f5 !important;
+            color: var(--primary-color) !important;
+        }
+
+        /* Typing indicator */
+        .typing-indicator {
+            display: flex;
+            padding: 10px 15px;
+            background-color: var(--ai-message-bg);
+            border-radius: 18px;
+            align-self: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--light-text);
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: typingAnimation 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typingAnimation {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-5px); }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 480px) {
+            .chat-container {
+                height: 100vh;
+                border-radius: 0;
+            }
+            body {
+                padding: 0;
+            }
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: var(--white);
+            width: 90%;
+            max-width: 400px;
+            border-radius: 15px;
+            overflow: hidden;
+            animation: modalFadeIn 0.3s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header {
+            padding: 15px 20px;
+            background-color: var(--primary-color);
+            color: var(--white);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 18px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--white);
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .setting-option {
+            margin-bottom: 20px;
+        }
+
+        .setting-option label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        .setting-option select, .setting-option input[type="range"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .setting-option input[type="range"] {
+            padding: 0;
+            -webkit-appearance: none;
+            height: 8px;
+            background: #ddd;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+
+        .setting-option input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        #length-value {
+            display: block;
+            text-align: center;
+            font-size: 14px;
+            color: var(--light-text);
+        }
+    </style>
 </head>
 <body>
     <div class="chat-container">
-        <header class="chat-header">
-            <div class="ai-profile">
+        <header class="chat-header"> <div class="ai-profile">
                 <img src="assets/ai-avatar.png" alt="AI Avatar" class="avatar">
                 <div>
-                    <h1>Nexa AI</h1>
-                    <p class="status">Online</p>
+                    <h1>Nexa AI</h1> <p class="status">Online</p>
                 </div>
             </div>
             <button class="menu-btn" id="settings-btn"><i class="fas fa-cog"></i></button>
         </header>
 
-        <div class="chat-messages" id="chat-messages">
-            <div class="message ai-message">
-                <div class="message-content">
-                    <p>Hi there! 👋 I'm your AI assistant powered by Hugging Face. How can I help you today?</p>
+        <div class="chat-messages" id="chatMessages"> <div class="message ai-message"> <div class="message-content">
+                    <p>Hello! How can I help you today?</p>
                 </div>
                 <span class="message-time">Just now</span>
             </div>
         </div>
 
-        <div class="chat-input">
-            <button class="attach-btn" id="attach-btn"><i class="fas fa-paperclip"></i></button>
-            <input type="text" id="user-input" placeholder="Type your message..." autofocus>
-            <button id="send-btn"><i class="fas fa-paper-plane"></i></button>
-            <button class="voice-btn" id="voice-btn"><i class="fas fa-microphone"></i></button>
+        <div class="chat-input"> <button class="attach-btn" id="attach-btn"><i class="fas fa-paperclip"></i></button>
+            <input type="text" id="chatInput" class="chat-input" placeholder="Type your message..."> <button id="sendButton" class="send-button"><i class="fas fa-paper-plane"></i></button> <button class="voice-btn" id="voice-btn"><i class="fas fa-microphone"></i></button>
         </div>
     </div>
 
@@ -47,19 +368,231 @@
                 <div class="setting-option">
                     <label for="api-model">AI Model:</label>
                     <select id="api-model">
-                        <option value="openai-community/gpt2">GPT-2</option>
-                        <option value="facebook/blenderbot-400M-distill" selected>BlenderBot</option> <option value="microsoft/DialoGPT-medium">DialoGPT</option>
+                        <option value="HuggingFaceH4/zephyr-7b-beta" selected>Zephyr-7B-Beta</option> <option value="facebook/blenderbot-400M-distill">BlenderBot</option>
+                        <option value="microsoft/DialoGPT-medium">DialoGPT</option>
+                        <option value="openai-community/gpt2">GPT-2 (Less stable)</option>
                     </select>
                 </div>
                 <div class="setting-option">
                     <label for="response-length">Response Length:</label>
-                    <input type="range" id="response-length" min="20" max="150" value="50">
-                    <span id="length-value">50 tokens</span>
+                    <input type="range" id="response-length" min="20" max="150" value="80"> <span id="length-value">80 tokens</span>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="app.js"></script>
+    <script>
+        const chatInput = document.getElementById('chatInput');
+        const sendButton = document.getElementById('sendButton');
+        const chatMessages = document.getElementById('chatMessages');
+
+        // Settings Modal Elements (from Nexa AI)
+        const settingsBtn = document.getElementById('settings-btn');
+        const settingsModal = document.getElementById('settings-modal');
+        const closeSettings = document.getElementById('close-settings');
+        const apiModelSelect = document.getElementById('api-model');
+        const responseLength = document.getElementById('response-length');
+        const lengthValue = document.getElementById('length-value');
+        const attachBtn = document.getElementById('attach-btn'); // For consistency
+        const voiceBtn = document.getElementById('voice-btn');   // For consistency
+
+
+        // YOUR NEW API KEY (WRITE PERMISSIONS)
+        const HUGGING_FACE_API_KEY = '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';
+        
+        // Initial model, matches the default selected in settings
+        let currentModel = 'HuggingFaceH4/zephyr-7b-beta'; 
+        let maxLength = 80; // Initial max length for Zephyr
+        let temperature = 0.5; // Initial temperature for Zephyr
+
+        // --- Event Listeners and Functions from Nexa AI (adapted) ---
+
+        // Update length value display
+        responseLength.addEventListener('input', function() {
+            maxLength = this.value;
+            lengthValue.textContent = `${maxLength} tokens`;
+        });
+        
+        // Model selection
+        apiModelSelect.addEventListener('change', function() {
+            currentModel = this.value;
+            // Optionally adjust default max length based on model if needed
+            if (currentModel.includes("blenderbot") || currentModel.includes("dialogpt")) {
+                maxLength = 50; // Shorter for conversational
+            } else {
+                maxLength = 80; // For Zephyr/GPT-2
+            }
+            responseLength.value = maxLength;
+            lengthValue.textContent = `${maxLength} tokens`;
+        });
+        
+        // Settings modal
+        settingsBtn.addEventListener('click', function() {
+            settingsModal.style.display = 'flex';
+        });
+        
+        closeSettings.addEventListener('click', function() {
+            settingsModal.style.display = 'none';
+        });
+        
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            if (event.target === settingsModal) {
+                settingsModal.style.display = 'none';
+            }
+        });
+        
+        // Voice input (placeholder)
+        if (voiceBtn) { // Check if element exists (from Nexa AI)
+            voiceBtn.addEventListener('click', function() {
+                addMessage("Voice input is not implemented in this demo", 'bot', true); // Use 'bot' sender
+            });
+        }
+        
+        // Attach button (placeholder)
+        if (attachBtn) { // Check if element exists (from Nexa AI)
+            attachBtn.addEventListener('click', function() {
+                addMessage("Attachment feature not implemented", 'bot', true); // Use 'bot' sender
+            });
+        }
+
+        // --- Original ThunderChatAI JS Logic (Modified for compatibility and improvements) ---
+
+        async function sendMessage() {
+            const message = chatInput.value.trim();
+            if (message === '') return;
+
+            addMessage(message, 'user');
+            chatInput.value = '';
+            sendButton.disabled = true;
+            showTypingIndicator(); // Show typing indicator
+
+            try {
+                const response = await fetch(`https://api-inference.huggingface.co/models/${currentModel}`, { // Use currentModel
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${HUGGING_FACE_API_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        inputs: message,
+                        parameters: {
+                            max_new_tokens: maxLength, // Use dynamic maxLength
+                            temperature: temperature,   // Use dynamic temperature
+                            do_sample: true,
+                        }
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`API error: ${response.status} - ${JSON.stringify(errorData)}`);
+                }
+
+                const data = await response.json();
+                let botResponse = "Sorry, I couldn't get a response. Please try again.";
+
+                // Handle different response formats based on models
+                if (Array.isArray(data) && data.length > 0 && data[0].generated_text) {
+                    botResponse = data[0].generated_text.trim();
+                } else if (data.generated_text) {
+                    botResponse = data.generated_text.trim();
+                } else if (data.conversation?.generated_responses) { // For conversational models
+                    botResponse = data.conversation.generated_responses.slice(-1)[0].trim();
+                }
+
+                // Attempt to remove the user's input if the AI echoes it
+                if (botResponse.startsWith(message)) {
+                    botResponse = botResponse.substring(message.length).trim();
+                }
+                
+                // If response is still empty after trimming, provide a fallback
+                if (!botResponse) {
+                    botResponse = "I'm not sure how to respond to that. Can you rephrase?";
+                }
+
+                addMessage(botResponse, 'bot'); // Use 'bot' sender
+
+            } catch (error) {
+                console.error('Error fetching from Hugging Face API:', error);
+                // Provide specific error messages as per Nexa AI's logic
+                if (error.message.includes("404")) {
+                    addMessage("The AI model might be currently unavailable or the model ID is incorrect. Please try a different model from settings, or wait and retry.", 'bot');
+                } else if (error.message.includes("401")) {
+                    addMessage("Authentication failed. Please check your API key in the code.", 'bot');
+                } else if (error.message.includes("503")) {
+                    addMessage("The AI service is temporarily unavailable. Please try again in a moment (model might be warming up).", 'bot');
+                } else {
+                    addMessage("Oops! Something went wrong. Please check your API key or try again later.", 'bot');
+                }
+            } finally {
+                hideTypingIndicator(); // Hide typing indicator
+                sendButton.disabled = false;
+                chatInput.focus();
+            }
+        }
+
+        // Adapted addMessage to match Nexa AI's styling (user-message/ai-message)
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender === 'user' ? 'user-message' : 'ai-message'}`;
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.innerHTML = `<p>${text}</p>`; // Use <p> tag for content
+
+            const timeSpan = document.createElement('span');
+            timeSpan.className = 'message-time';
+            timeSpan.textContent = getCurrentTime();
+
+            messageDiv.appendChild(contentDiv);
+            messageDiv.appendChild(timeSpan);
+            chatMessages.appendChild(messageDiv);
+
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        // Typing Indicator functions (from Nexa AI)
+        function showTypingIndicator() {
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'typing-indicator';
+            typingDiv.id = 'typing-indicator';
+            
+            for (let i = 0; i < 3; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'typing-dot';
+                typingDiv.appendChild(dot);
+            }
+            
+            chatMessages.appendChild(typingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        function hideTypingIndicator() {
+            const typingIndicator = document.getElementById('typing-indicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+        
+        // Function to get current time for timestamps
+        function getCurrentTime() {
+            const now = new Date();
+            return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+
+        // Event Listeners (ThunderChatAI)
+        sendButton.addEventListener('click', sendMessage);
+        chatInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        window.addEventListener('load', () => {
+            chatInput.focus();
+        });
+    </script>
 </body>
 </html>
