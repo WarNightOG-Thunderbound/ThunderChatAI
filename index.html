@@ -3,270 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ThunderChatAI</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
-
-        :root {
-            --primary-color: #6a0dad;
-            --secondary-color: #9370DB;
-            --background-color: #f0f0f0;
-            --chat-bg-color: #ffffff;
-            --text-color: #333;
-            --border-color: #ddd;
-            --shadow-color: rgba(0, 0, 0, 0.1);
-        }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background-color: var(--background-color);
-            overflow: hidden;
-        }
-
-        .chat-container {
-            width: 100%;
-            max-width: 420px;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            background-color: var(--chat-bg-color);
-            box-shadow: 0 4px 20px var(--shadow-color);
-            border-radius: 0;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .chat-header {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 15px 20px;
-            text-align: center;
-            font-size: 1.2em;
-            font-weight: 600;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            z-index: 10;
-        }
-
-        .chat-messages {
-            flex-grow: 1;
-            padding: 15px;
-            overflow-y: auto;
-            scroll-behavior: smooth;
-            -webkit-overflow-scrolling: touch;
-            background-color: #e9e9e9;
-        }
-
-        .message {
-            display: flex;
-            margin-bottom: 15px;
-        }
-
-        .message.user {
-            justify-content: flex-end;
-        }
-
-        .message.bot {
-            justify-content: flex-start;
-        }
-
-        .message-bubble {
-            max-width: 80%;
-            padding: 10px 15px;
-            border-radius: 20px;
-            word-wrap: break-word;
-            line-height: 1.4;
-            font-size: 0.95em;
-        }
-
-        .message.user .message-bubble {
-            background-color: var(--primary-color);
-            color: white;
-            border-bottom-right-radius: 5px;
-        }
-
-        .message.bot .message-bubble {
-            background-color: var(--secondary-color);
-            color: white;
-            border-bottom-left-radius: 5px;
-        }
-
-        .chat-input-container {
-            display: flex;
-            padding: 15px;
-            border-top: 1px solid var(--border-color);
-            background-color: var(--chat-bg-color);
-            gap: 10px;
-        }
-
-        .chat-input {
-            flex-grow: 1;
-            padding: 12px 15px;
-            border: 1px solid var(--border-color);
-            border-radius: 25px;
-            font-family: 'Poppins', sans-serif;
-            font-size: 1em;
-            outline: none;
-            transition: border-color 0.3s ease;
-        }
-
-        .chat-input:focus {
-            border-color: var(--primary-color);
-        }
-
-        .send-button {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 25px;
-            padding: 12px 20px;
-            font-size: 1em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .send-button:hover {
-            background-color: #5a0a9d;
-        }
-
-        .send-button:active {
-            transform: scale(0.98);
-        }
-
-        .send-button:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
-        }
-
-        @media (max-width: 320px) {
-            .chat-header {
-                font-size: 1.1em;
-                padding: 12px 15px;
-            }
-            .chat-input-container {
-                padding: 10px;
-            }
-            .chat-input, .send-button {
-                padding: 10px 15px;
-                font-size: 0.9em;
-            }
-        }
-    </style>
+    <title>AI Companion</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div class="chat-container">
-        <div class="chat-header">
-            ThunderChatAI
-        </div>
-        <div class="chat-messages" id="chatMessages">
-            <div class="message bot">
-                <div class="message-bubble">Hello! How can I help you today?</div>
+        <header class="chat-header">
+            <div class="ai-profile">
+                <img src="assets/ai-avatar.png" alt="AI Avatar" class="avatar">
+                <div>
+                    <h1>Nexa AI</h1>
+                    <p class="status">Online</p>
+                </div>
+            </div>
+            <button class="menu-btn" id="settings-btn"><i class="fas fa-cog"></i></button>
+        </header>
+
+        <div class="chat-messages" id="chat-messages">
+            <div class="message ai-message">
+                <div class="message-content">
+                    <p>Hi there! 👋 I'm your AI assistant powered by Hugging Face. How can I help you today?</p>
+                </div>
+                <span class="message-time">Just now</span>
             </div>
         </div>
-        <div class="chat-input-container">
-            <input type="text" id="chatInput" class="chat-input" placeholder="Type your message...">
-            <button id="sendButton" class="send-button">Send</button>
+
+        <div class="chat-input">
+            <button class="attach-btn" id="attach-btn"><i class="fas fa-paperclip"></i></button>
+            <input type="text" id="user-input" placeholder="Type your message..." autofocus>
+            <button id="send-btn"><i class="fas fa-paper-plane"></i></button>
+            <button class="voice-btn" id="voice-btn"><i class="fas fa-microphone"></i></button>
         </div>
     </div>
 
-    <script>
-        const chatInput = document.getElementById('chatInput');
-        const sendButton = document.getElementById('sendButton');
-        const chatMessages = document.getElementById('chatMessages');
+    <div class="modal" id="settings-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Settings</h2>
+                <button class="close-btn" id="close-settings">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-option">
+                    <label for="api-model">AI Model:</label>
+                    <select id="api-model">
+                        <option value="openai-community/gpt2">GPT-2</option>
+                        <option value="facebook/blenderbot-400M-distill" selected>BlenderBot</option> <option value="microsoft/DialoGPT-medium">DialoGPT</option>
+                    </select>
+                </div>
+                <div class="setting-option">
+                    <label for="response-length">Response Length:</label>
+                    <input type="range" id="response-length" min="20" max="150" value="50">
+                    <span id="length-value">50 tokens</span>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        // ⚠️ **TEMPORARY API KEY (DO NOT DEPLOY THIS PUBLICLY)** ⚠️
-        const HUGGING_FACE_API_KEY = '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';
-        const HUGGING_FACE_MODEL = 'HuggingFaceH4/zephyr-7b-beta'; // Example model
-
-        async function sendMessage() {
-            const message = chatInput.value.trim();
-            if (message === '') return;
-
-            addMessage(message, 'user');
-            chatInput.value = '';
-            sendButton.disabled = true;
-
-            try {
-                const response = await fetch(`https://api-inference.huggingface.co/models/${HUGGING_FACE_MODEL}`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${HUGGING_FACE_API_KEY}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        inputs: message,
-                        parameters: {
-                            max_new_tokens: 150,
-                            temperature: 0.7,
-                            do_sample: true,
-                        }
-                    })
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(`API error: ${response.status} - ${JSON.stringify(errorData)}`);
-                }
-
-                const data = await response.json();
-                let botResponse = "Sorry, I couldn't get a response. Please try again.";
-
-                if (Array.isArray(data) && data.length > 0 && data[0].generated_text) {
-                    botResponse = data[0].generated_text.trim();
-                    if (botResponse.startsWith(message)) {
-                        botResponse = botResponse.substring(message.length).trim();
-                    }
-                } else if (data.generated_text) {
-                    botResponse = data.generated_text.trim();
-                    if (botResponse.startsWith(message)) {
-                        botResponse = botResponse.substring(message.length).trim();
-                    }
-                }
-
-                addMessage(botResponse, 'bot');
-
-            } catch (error) {
-                console.error('Error fetching from Hugging Face API:', error);
-                addMessage("Oops! Something went wrong. Please check your API key or try again later.", 'bot');
-            } finally {
-                sendButton.disabled = false;
-                chatInput.focus();
-            }
-        }
-
-        function addMessage(text, sender) {
-            const messageElement = document.createElement('div');
-            messageElement.classList.add('message', sender);
-
-            const bubbleElement = document.createElement('div');
-            bubbleElement.classList.add('message-bubble');
-            bubbleElement.textContent = text;
-
-            messageElement.appendChild(bubbleElement);
-            chatMessages.appendChild(messageElement);
-
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-
-        sendButton.addEventListener('click', sendMessage);
-        chatInput.addEventListener('keypress', (event) => {
-            if (event.key === 'Enter') {
-                sendMessage();
-            }
-        });
-
-        window.addEventListener('load', () => {
-            chatInput.focus();
-        });
-    </script>
+    <script src="app.js"></script>
 </body>
 </html>
