@@ -273,20 +273,6 @@
             z-index: 1;
         }
 
-        .api-key-container {
-            padding: 10px 15px;
-            background: rgba(0, 161, 255, 0.1);
-            border-bottom: 1px solid #e0e0e0;
-        }
-
-        #api-key-input {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 0.8rem;
-        }
-
         @media (max-width: 500px) {
             .sky-ai-container {
                 height: 90vh;
@@ -313,13 +299,9 @@
             </div>
         </div>
 
-        <div class="api-key-container">
-            <input type="text" id="api-key-input" placeholder="Enter your OpenRouter API key" value="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">
-        </div>
-
         <div class="chat-container" id="chat-container">
             <div class="message ai-message" style="opacity: 1; transform: translateY(0);">
-                Hello! I'm SkyAI, your intelligent assistant. Please enter your API key above to start chatting.
+                Hello! I'm SkyAI, your intelligent assistant. How can I help you today?
                 <div class="timestamp">Just now</div>
             </div>
         </div>
@@ -337,11 +319,12 @@
     </div>
 
     <script>
-        // Configuration
+        // Configuration with WORKING built-in API key
         const config = {
             aiName: "SkyAI",
-            defaultModel: "openchat/openchat-7b", // Free model on OpenRouter
-            defaultGreeting: "Hello! I'm SkyAI, your intelligent assistant. Please enter your API key above to start chatting.",
+            apiKey: "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", // Your working key
+            defaultModel: "openchat/openchat-7b", // Free model
+            defaultGreeting: "Hello! I'm SkyAI, your intelligent assistant. How can I help you today?",
             thinkingMessages: [
                 "Analyzing your request...",
                 "Consulting my knowledge base...",
@@ -354,7 +337,6 @@
         const chatContainer = document.getElementById('chat-container');
         const userInput = document.getElementById('user-input');
         const sendBtn = document.getElementById('send-btn');
-        const apiKeyInput = document.getElementById('api-key-input');
 
         // State
         let conversationHistory = [
@@ -363,7 +345,6 @@
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
-            // Load conversation history from localStorage
             const savedHistory = localStorage.getItem('skyAIHistory');
             if (savedHistory) {
                 conversationHistory = JSON.parse(savedHistory);
@@ -382,12 +363,6 @@
             const message = userInput.value.trim();
             if (!message) return;
             
-            const apiKey = apiKeyInput.value.trim();
-            if (!apiKey) {
-                addMessage('assistant', "Please enter your API key first.");
-                return;
-            }
-            
             addMessage('user', message);
             conversationHistory.push({ role: 'user', content: message });
             userInput.value = '';
@@ -395,7 +370,7 @@
             const typingIndicator = showTypingIndicator();
             
             try {
-                const response = await queryOpenRouter(apiKey, message);
+                const response = await queryOpenRouter(message);
                 typingIndicator.remove();
                 
                 if (response && response.choices && response.choices[0]) {
@@ -411,7 +386,6 @@
                 console.error("API Error:", error);
             }
             
-            // Save conversation
             localStorage.setItem('skyAIHistory', JSON.stringify(conversationHistory));
         }
 
@@ -428,14 +402,14 @@
             return typingIndicator;
         }
 
-        async function queryOpenRouter(apiKey, message) {
+        async function queryOpenRouter(message) {
             const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
                 method: "POST",
                 headers: {
-                    "Authorization": `Bearer ${apiKey}`,
+                    "Authorization": `Bearer ${config.apiKey}`,
                     "Content-Type": "application/json",
-                    "HTTP-Referer": "https://skyai-demo.com", // Required but can be any URL
-                    "X-Title": "SkyAI Demo" // Required but can be any name
+                    "HTTP-Referer": "https://skyai-demo.com",
+                    "X-Title": "SkyAI Demo"
                 },
                 body: JSON.stringify({
                     model: config.defaultModel,
@@ -473,7 +447,6 @@
             chatContainer.appendChild(messageDiv);
             chatContainer.scrollTop = chatContainer.scrollHeight;
             
-            // Animate message
             setTimeout(() => {
                 messageDiv.style.opacity = '1';
                 messageDiv.style.transform = 'translateY(0)';
